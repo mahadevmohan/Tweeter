@@ -1,4 +1,5 @@
 # ai.py
+
 import os
 import json
 from openai import AzureOpenAI
@@ -18,15 +19,6 @@ client = AzureOpenAI(
     api_key=subscription_key,
     api_version="2024-05-01-preview",
 )
-
-#testing GPT API
-text_prompt = "what gpt model are you"
-response = client.chat.completions.create(
-  model=deployment,
-  messages = [{"role":"system", "content":"You are a helpful assistant."},
-              {"role":"user","content":text_prompt},])
-print(response.choices[0].message.content)
-
 
 def generate_responses(situation, global_players, current_gdp, user_tweet, callback=None):
     """
@@ -48,7 +40,7 @@ def generate_responses(situation, global_players, current_gdp, user_tweet, callb
         f"Current GDP: ${current_gdp:,}\n"
         f"User's Tweet: \"{user_tweet}\"\n\n"
         f"Please provide the following based on the above context in JSON format:\n"
-        f"1. Responses from each global player. Each response should be humorous, profound, and political (fictional).\n"
+        f"1. Responses from each global player. Each response should be humorous, profound, political, and comedically hateful or negative (fictional).\n"
         f"2. GDP Impact: Specify 'increase' or 'decrease' and the amount in trillions.\n"
         f"3. Relationships: For each global player, specify the relationship status as 'Good', 'Neutral', or 'Hostile'.\n\n"
         f"Structure your response as follows:\n"
@@ -80,6 +72,8 @@ def generate_responses(situation, global_players, current_gdp, user_tweet, callb
                 ],
             )
             result = response.choices[0].message.content
+            print("Raw AI Response:")
+            print(result)  # Debug: Print the raw response
             # Attempt to parse the JSON response
             try:
                 ai_data = json.loads(result)
@@ -97,4 +91,18 @@ def generate_responses(situation, global_players, current_gdp, user_tweet, callb
     # Run the AI call in a separate thread to prevent blocking
     threading.Thread(target=fetch_response, daemon=True).start()
 
-
+# Testing the AI API when running ai.py directly
+if __name__ == "__main__":
+    # Testing GPT API
+    text_prompt = "what gpt model are you"
+    try:
+        response = client.chat.completions.create(
+            model=deployment,
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant."},
+                {"role": "user", "content": text_prompt},
+            ],
+        )
+        print(response.choices[0].message.content)
+    except Exception as e:
+        print(f"Error during AI testing: {e}")
